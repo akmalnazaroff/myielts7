@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>IELTS Tracker</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f5f7;
+      color: #111827;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: auto;
+      padding: 20px 16px 40px;
+    }
+
+    .header {
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+    }
+
+    .date {
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 17px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.06);
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 15px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 15px;
+      background: #e5e7eb;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #22c55e;
+      transition: width .3s ease;
+    }
+
+    .progress-text {
+      margin-top: 10px;
+      color: #475569;
+      font-size: 16px;
+    }
+
+    .menu {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .menu button {
+      border: 0;
+      background: white;
+      border-radius: 18px;
+      padding: 22px 10px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,.06);
+    }
+
+    .menu button:active {
+      transform: scale(.98);
+    }
+
+    .task {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: white;
+    }
+
+    .task.done {
+      border-color: #86efac;
+      background: #f0fdf4;
+    }
+
+    .task-top {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .checkbox {
+      min-width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      border: 2px solid #cbd5e1;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .task.done .checkbox {
+      background: #22c55e;
+      border-color: #22c55e;
+      color: white;
+    }
+
+    .task-name {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .task.done .task-name {
+      color: #16a34a;
+    }
+
+    .task-meta {
+      margin-top: 7px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.05);
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 5px;
+    }
+
+    .stat-label {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .day-row {
+      margin-bottom: 14px;
+      padding: 14px;
+      border-radius: 15px;
+      background: white;
+      border: 1px solid #e5e7eb;
+    }
+
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .mini-bar {
+      height: 9px;
+      background: #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .mini-fill {
+      height: 100%;
+      background: #22c55e;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .calendar-day {
+      min-height: 58px;
+      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 6px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .calendar-day.has-task {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+
+    .calendar-day.complete {
+      background: #dcfce7;
+      border-color: #86efac;
+    }
+
+    .calendar-number {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .loading {
+      text-align: center;
+      color: #64748b;
+      padding: 25px;
+    }
+
+    .error {
+      color: #dc2626;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .back {
+      margin-bottom: 14px;
+      border: 0;
+      background: transparent;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .footer {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: 25px;
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+
+    <h1>
+      📚 IELTS Tracker
+    </h1>
+
+    <div
+      class="date"
+      id="currentDate"
+    ></div>
+
+  </div>
+
+
+  <!-- HOME -->
+
+  <div
+    id="home"
+    class="section active"
+  >
+
+    <div class="card">
+
+      <div class="card-title">
+        📊 Today's Progress
+      </div>
+
+      <div class="progress-bar">
+
+        <div
+          id="progressFill"
+          class="progress-fill"
+        ></div>
+
+      </div>
+
+      <div
+        id="progressText"
+        class="progress-text"
+      >
+        Loading...
+      </div>
+
+    </div>
+
+
+    <div class="menu">
+
+      <button onclick="showSection('today')">
+        📅<br>
+        Today
+      </button>
+
+      <button onclick="showSection('progress')">
+        📊<br>
+        Progress
+      </button>
+
+      <button onclick="showSection('statistics')">
+        📈<br>
+        Statistics
+      </button>
+
+      <button onclick="showSection('calendar')">
+        🗓<br>
+        Calendar
+      </button>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="card-title">
+        📅 Today's Tasks
+      </div>
+
+      <div id="homeTasks">
+        <div class="loading">
+          Loading...
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- TODAY -->
+
+  <div
+    id="today"
+    class="section"
+  >
+
+    <button
+      class="back"
+      onclick="showSection('home')"
+    >
+      ← Back
+    </button>
+
+    <div class="card">
+
+      <div class="card-title">
+        📅 Today's Tasks
+      </div>
+
+      <div id="todayTasks">
+        Loading...
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- PROGRESS -->
+
+  <div
+    id="progress"
+    class="section"
+  >
+
+    <button
+      class="back"
+      onclick="showSection('home')"
+    >
+      ← Back
+    </button>
+
+    <div class="card">
+
+      <div class="card-title">
+        📊 IELTS Progress
+      </div>
+
+      <div class="stat-grid">
+
+        <div class="stat">
+
+          <div class="stat-label">
+            Tasks
+          </div>
+
+          <div
+            class="stat-value"
+            id="pTasks"
+          >
+            0%
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div class="stat-label">
+            Time
+          </div>
+
+          <div
+            class="stat-value"
+            id="pMinutes"
+          >
+            0%
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div class="stat-label">
+            Completed
+          </div>
+
+          <div
+            class="stat-value"
+            id="pDone"
+          >
+            0
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div class="stat-label">
+            Total
+          </div>
+
+          <div
+            class="stat-value"
+            id="pTotal"
+          >
+            0
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- STATISTICS -->
+
+  <div
+    id="statistics"
+    class="section"
+  >
+
+    <button
+      class="back"
+      onclick="showSection('home')"
+    >
+      ← Back
+    </button>
+
+    <div class="card">
+
+      <div class="card-title">
+        📈 Statistics
+      </div>
+
+      <div id="statisticsContent">
+        Loading...
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- CALENDAR -->
+
+  <div
+    id="calendar"
+    class="section"
+  >
+
+    <button
+      class="back"
+      onclick="showSection('home')"
+    >
+      ← Back
+    </button>
+
+    <div class="card">
+
+      <div class="card-title">
+        🗓 Calendar
+      </div>
+
+      <div
+        class="calendar-grid"
+        id="calendarContent"
+      >
+        Loading...
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer">
+    @myielts7bot
+  </div>
+
+</div>
+
+
+<script>
+
+  /*
+   * APPS SCRIPT BACKEND
+   *
+   * Keyin shu URL orqali
+   * Google Apps Script bilan
+   * bog'laymiz.
+   */
+
+  const API_URL =
+    'https://script.google.com/macros/s/AKfycbyn5kYCM5r6M7zmCviDfOtI7AWFrkw42a6qiYemfTnhw6iMqe6-ozA3ynokNNMXlP_ZtQ/exec';
+
+
+  let APP_DATA = null;
+
+
+  // ============================================
+  // DATE
+  // ============================================
+
+  document.getElementById(
+    'currentDate'
+  ).textContent =
+    new Date().toLocaleDateString(
+      'en-GB',
+      {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }
+    );
+
+
+  // ============================================
+  // LOAD DATA
+  // ============================================
+
+  function loadData() {
+
+    document.getElementById(
+      'homeTasks'
+    ).innerHTML =
+      '<div class="loading">Loading...</div>';
+
+
+    const callback =
+      'handleData_' +
+      Date.now();
+
+
+    window[callback] =
+      function(data) {
+
+        try {
+
+          APP_DATA = data;
+
+          renderAll();
+
+        } finally {
+
+          delete window[callback];
+
+        }
+
+      };
+
+
+    const script =
+      document.createElement(
+        'script'
+      );
+
+
+    script.src =
+      API_URL +
+      '?api=data&callback=' +
+      callback +
+      '&_=' +
+      Date.now();
+
+
+    script.onerror =
+      function() {
+
+        document.getElementById(
+          'homeTasks'
+        ).innerHTML =
+
+          '<div class="error">' +
+          'Error loading data' +
+          '</div>';
+
+      };
+
+
+    document.body.appendChild(
+      script
+    );
+
+  }
+
+
+  // ============================================
+  // TOGGLE
+  // ============================================
+
+  function toggleTask(
+    row
+  ) {
+
+    const callback =
+      'handleToggle_' +
+      Date.now();
+
+
+    window[callback] =
+      function(data) {
+
+        APP_DATA = data;
+
+        renderAll();
+
+        delete window[callback];
+
+      };
+
+
+    const script =
+      document.createElement(
+        'script'
+      );
+
+
+    script.src =
+      API_URL +
+      '?api=toggle' +
+      '&row=' +
+      encodeURIComponent(row) +
+      '&callback=' +
+      callback +
+      '&_=' +
+      Date.now();
+
+
+    document.body.appendChild(
+      script
+    );
+
+  }
+
+
+  // ============================================
+  // RENDER ALL
+  // ============================================
+
+  function renderAll() {
+
+    if (!APP_DATA) {
+      return;
+    }
+
+    renderProgress();
+
+    renderToday();
+
+    renderStatistics();
+
+    renderCalendar();
+
+  }
+
+
+  // ============================================
+  // PROGRESS
+  // ============================================
+
+  function renderProgress() {
+
+    const p =
+      APP_DATA.progress;
+
+
+    document.getElementById(
+      'progressFill'
+    ).style.width =
+      p.percent + '%';
+
+
+    document.getElementById(
+      'progressText'
+    ).textContent =
+
+      p.done +
+      ' / ' +
+      p.total +
+      ' tasks completed · ' +
+      p.percent +
+      '%';
+
+
+    document.getElementById(
+      'pTasks'
+    ).textContent =
+      p.percent + '%';
+
+
+    document.getElementById(
+      'pMinutes'
+    ).textContent =
+      p.minutePercent + '%';
+
+
+    document.getElementById(
+      'pDone'
+    ).textContent =
+      p.done;
+
+
+    document.getElementById(
+      'pTotal'
+    ).textContent =
+      p.total;
+
+  }
+
+
+  // ============================================
+  // TODAY
+  // ============================================
+
+  function renderToday() {
+
+    const tasks =
+      APP_DATA.today;
+
+
+    const html =
+      renderTaskList(tasks);
+
+
+    document.getElementById(
+      'homeTasks'
+    ).innerHTML =
+      html;
+
+
+    document.getElementById(
+      'todayTasks'
+    ).innerHTML =
+      html;
+
+  }
+
+
+  function renderTaskList(
+    tasks
+  ) {
+
+    if (!tasks || !tasks.length) {
+
+      return `
+        <div class="loading">
+          🎉 No tasks for today.
+        </div>
+      `;
+
+    }
+
+
+    return tasks
+      .map(
+        function(task) {
+
+          return `
+
+            <div
+              class="task ${task.done ? 'done' : ''}"
+            >
+
+              <div class="task-top">
+
+                <button
+                  class="checkbox"
+                  onclick="toggleTask(${task.row})"
+                >
+                  ${task.done ? '✓' : ''}
+                </button>
+
+
+                <div>
+
+                  <div class="task-name">
+                    ${escapeHtml(task.task)}
+                  </div>
+
+
+                  <div class="task-meta">
+
+                    ${
+                      task.minutes
+                        ? '⏱ ' +
+                          task.minutes +
+                          ' min'
+                        : ''
+                    }
+
+                    ${
+                      task.skill
+                        ? ' · ' +
+                          escapeHtml(task.skill)
+                        : ''
+                    }
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          `;
+
+        }
+      )
+      .join('');
+
+  }
+
+
+  // ============================================
+  // STATISTICS
+  // ============================================
+
+  function renderStatistics() {
+
+    const stats =
+      APP_DATA.daily;
+
+
+    if (!stats || !stats.length) {
+
+      document.getElementById(
+        'statisticsContent'
+      ).innerHTML =
+        'No statistics yet.';
+
+      return;
+
+    }
+
+
+    document.getElementById(
+      'statisticsContent'
+    ).innerHTML =
+
+      stats
+        .slice()
+        .reverse()
+        .map(
+          function(day) {
+
+            return `
+
+              <div class="day-row">
+
+                <div class="day-header">
+
+                  <span>
+                    ${formatDate(day.date)}
+                  </span>
+
+                  <span>
+                    ${day.done}/${day.total}
+                    · ${day.percent}%
+                  </span>
+
+                </div>
+
+
+                <div class="mini-bar">
+
+                  <div
+                    class="mini-fill"
+                    style="width:${day.percent}%"
+                  ></div>
+
+                </div>
+
+
+                <div class="task-meta">
+
+                  ⏱ ${day.doneMinutes}
+                  / ${day.minutes} min
+
+                </div>
+
+              </div>
+
+            `;
+
+          }
+        )
+        .join('');
+
+  }
+
+
+  // ============================================
+  // CALENDAR
+  // ============================================
+
+  function renderCalendar() {
+
+    const stats =
+      APP_DATA.daily;
+
+
+    if (!stats || !stats.length) {
+
+      document.getElementById(
+        'calendarContent'
+      ).innerHTML =
+        'No dates.';
+
+      return;
+
+    }
+
+
+    document.getElementById(
+      'calendarContent'
+    ).innerHTML =
+
+      stats
+        .map(
+          function(day) {
+
+            const complete =
+              day.done === day.total &&
+              day.total > 0;
+
+
+            const dayNumber =
+              Number(
+                day.date.split('-')[2]
+              );
+
+
+            return `
+
+              <div
+                class="
+                  calendar-day
+                  has-task
+                  ${complete ? 'complete' : ''}
+                "
+              >
+
+                <div class="calendar-number">
+                  ${dayNumber}
+                </div>
+
+                <div>
+                  ${day.done}/${day.total}
+                </div>
+
+              </div>
+
+            `;
+
+          }
+        )
+        .join('');
+
+  }
+
+
+  // ============================================
+  // NAVIGATION
+  // ============================================
+
+  function showSection(
+    name
+  ) {
+
+    document
+      .querySelectorAll(
+        '.section'
+      )
+      .forEach(
+        function(section) {
+
+          section.classList.remove(
+            'active'
+          );
+
+        }
+      );
+
+
+    document.getElementById(
+      name
+    ).classList.add(
+      'active'
+    );
+
+  }
+
+
+  // ============================================
+  // HELPERS
+  // ============================================
+
+  function formatDate(
+    value
+  ) {
+
+    const parts =
+      value.split('-');
+
+
+    if (
+      parts.length !== 3
+    ) {
+
+      return value;
+
+    }
+
+
+    return (
+      parts[2] +
+      '.' +
+      parts[1] +
+      '.' +
+      parts[0]
+    );
+
+  }
+
+
+  function escapeHtml(
+    text
+  ) {
+
+    return String(text)
+
+      .replace(
+        /&/g,
+        '&amp;'
+      )
+
+      .replace(
+        /</g,
+        '&lt;'
+      )
+
+      .replace(
+        />/g,
+        '&gt;'
+      )
+
+      .replace(
+        /"/g,
+        '&quot;'
+      );
+
+  }
+
+
+  // ============================================
+  // START
+  // ============================================
+
+  loadData();
+
+</script>
+
+</body>
+
+</html>
