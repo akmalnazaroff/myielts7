@@ -9,7 +9,7 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
-
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
   <title>IELTS Tracker</title>
 
   <style>
@@ -575,7 +575,23 @@
 
   const API_URL =
     'https://script.google.com/macros/s/AKfycbyn5kYCM5r6M7zmCviDfOtI7AWFrkw42a6qiYemfTnhw6iMqe6-ozA3ynokNNMXlP_ZtQ/exec';
+  const tg =
+  window.Telegram &&
+  window.Telegram.WebApp
+    ? window.Telegram.WebApp
+    : null;
 
+if (tg) {
+  tg.ready();
+  tg.expand();
+}
+
+const CHAT_ID =
+  tg &&
+  tg.initDataUnsafe &&
+  tg.initDataUnsafe.user
+    ? tg.initDataUnsafe.user.id
+    : '';
 
   let APP_DATA = null;
 
@@ -640,11 +656,14 @@
 
 
     script.src =
-      API_URL +
-      '?api=data&callback=' +
-      callback +
-      '&_=' +
-      Date.now();
+  API_URL +
+  '?api=data' +
+  '&chatId=' +
+  encodeURIComponent(CHAT_ID) +
+  '&callback=' +
+  callback +
+  '&_=' +
+  Date.now();
 
 
     script.onerror =
@@ -700,14 +719,16 @@
 
 
     script.src =
-      API_URL +
-      '?api=toggle' +
-      '&row=' +
-      encodeURIComponent(row) +
-      '&callback=' +
-      callback +
-      '&_=' +
-      Date.now();
+  API_URL +
+  '?api=toggle' +
+  '&chatId=' +
+  encodeURIComponent(CHAT_ID) +
+  '&row=' +
+  encodeURIComponent(row) +
+  '&callback=' +
+  callback +
+  '&_=' +
+  Date.now();
 
 
     document.body.appendChild(
